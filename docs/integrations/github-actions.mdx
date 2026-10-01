@@ -49,6 +49,8 @@ The workflow fails when vulnerabilities are found:
 | 0 | Pass — No vulnerabilities |
 | 2 | Fail — Vulnerabilities found |
 
+Add `--fail-on high` (or `critical`, `medium`, `low`) to fail only on findings at or above that severity. Lower findings still appear in the report.
+
 ## Scan Modes for CI
 
 | Mode | Duration | Use Case |

@@ -27,6 +27,12 @@ strix -n --target ./app --scan-mode quick --scope-mode diff --diff-base origin/m
 | 1 | Execution error |
 | 2 | Vulnerabilities found |
 
+To fail only on serious findings, pass `--fail-on` with a minimum severity. Lower findings are still reported but exit `0`:
+
+```bash
+strix -n --target ./app --scan-mode quick --fail-on high
+```
+
 ## GitLab CI
 
 ```yaml .gitlab-ci.yml
