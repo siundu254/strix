@@ -66,6 +66,10 @@ strix (--target <target> | --target-list <path>) [options]
   threshold are still written to every report artifact. A finding whose
   severity Strix does not recognize always counts, so the gate never passes on a
   value it cannot rank. Omit the flag to exit `2` on any finding.
+
+  The threshold only applies to a scan that completed. If the run stopped
+  early (for example at `--max-budget` or `--max-turns`), any finding exits `2`,
+  because the scan may not have reached its more serious findings.
 </ParamField>
 
 <ParamField path="--config" type="string">
@@ -170,6 +174,6 @@ strix --target https://app.com --workspace-file ./openapi.yaml:specs/openapi.yam
 
 | Code | Meaning |
 |------|---------|
-| 0 | Scan completed successfully (interactive mode always exits `0`; in headless mode, `0` means no vulnerabilities were found) |
+| 0 | Scan completed successfully (interactive mode always exits `0`; in headless mode, `0` means no vulnerabilities were found, or with `--fail-on`, none at or above the threshold; lower findings are still in the report) |
 | 1 | A fatal error occurred before or during the scan (e.g. missing environment variables, Docker unavailable, invalid config file, diff-scope resolution failure, or an unhandled error) |
-| 2 | Vulnerabilities found (headless mode only; with `--fail-on`, only findings at or above that severity) |
+| 2 | Vulnerabilities found (headless mode only; with `--fail-on`, at least one finding at or above that severity, or any finding if the scan stopped before completing) |

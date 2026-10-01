@@ -26,13 +26,13 @@ def _reports(*severities: str | None) -> list[dict[str, Any]]:
 
 
 def test_no_findings_never_fail() -> None:
-    assert not cli_main.findings_fail_build([], None)
-    assert not cli_main.findings_fail_build([], "info")
+    assert not cli_main.findings_fail_build([], None, completed=True)
+    assert not cli_main.findings_fail_build([], "info", completed=True)
 
 
 @pytest.mark.parametrize("severity", ["critical", "high", "medium", "low", "info", "none"])
 def test_without_threshold_any_finding_fails(severity: str) -> None:
-    assert cli_main.findings_fail_build(_reports(severity), None)
+    assert cli_main.findings_fail_build(_reports(severity), None, completed=True)
 
 
 @pytest.mark.parametrize(
@@ -52,20 +52,31 @@ def test_without_threshold_any_finding_fails(severity: str) -> None:
     ],
 )
 def test_threshold_compares_severity(fail_on: str, severity: str, expected: bool) -> None:
-    assert cli_main.findings_fail_build(_reports(severity), fail_on) is expected
+    assert cli_main.findings_fail_build(_reports(severity), fail_on, completed=True) is expected
 
 
 def test_one_finding_at_threshold_fails_a_mixed_run() -> None:
-    assert cli_main.findings_fail_build(_reports("info", "low", "high"), "high")
+    assert cli_main.findings_fail_build(_reports("info", "low", "high"), "high", completed=True)
 
 
 @pytest.mark.parametrize("severity", ["severe", "", None])
 def test_unrecognized_severity_fails_closed(severity: str | None) -> None:
-    assert cli_main.findings_fail_build(_reports(severity), "critical")
+    assert cli_main.findings_fail_build(_reports(severity), "critical", completed=True)
 
 
 def test_none_severity_passes_any_threshold() -> None:
-    assert not cli_main.findings_fail_build(_reports("none"), "info")
+    assert not cli_main.findings_fail_build(_reports("none"), "info", completed=True)
+
+
+@pytest.mark.parametrize("severity", ["medium", "low", "info", "none"])
+def test_threshold_ignored_when_run_did_not_complete(severity: str) -> None:
+    # A run stopped early (budget, turn limit) may not have reached its serious
+    # findings, so the threshold must not let it pass.
+    assert cli_main.findings_fail_build(_reports(severity), "high", completed=False)
+
+
+def test_incomplete_run_without_findings_does_not_fail() -> None:
+    assert not cli_main.findings_fail_build([], "high", completed=False)
 
 
 def test_parse_fail_on_is_case_insensitive(monkeypatch: pytest.MonkeyPatch) -> None:
