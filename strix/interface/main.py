@@ -344,23 +344,17 @@ def display_completion_message(args: argparse.Namespace, results_path: Path) -> 
         notify_update(console)
 
 
-def findings_fail_build(
-    reports: list[dict[str, Any]], fail_on: str | None, *, completed: bool
-) -> bool:
+def findings_fail_build(reports: list[dict[str, Any]], fail_on: str | None) -> bool:
     """Whether headless findings should exit 2 under the ``--fail-on`` threshold.
 
     With no threshold any finding fails. Otherwise a finding fails when its
     severity is at or above the threshold. A severity outside the known scale
     fails too, so a gate never passes on a value it cannot rank. ``none`` is a
     known level below ``info`` and only fails without a threshold.
-
-    The threshold only applies to a completed run. A run that stopped early
-    (budget, turn limit, interrupt) may not have reached its serious findings,
-    so any finding fails it, as without ``--fail-on``.
     """
     if not reports:
         return False
-    if fail_on is None or not completed:
+    if fail_on is None:
         return True
     threshold = FAIL_ON_SEVERITIES.index(fail_on)
     for report in reports:
@@ -560,11 +554,7 @@ def main() -> None:
 
     if args.non_interactive:
         report_state = get_global_report_state()
-        if report_state and findings_fail_build(
-            report_state.vulnerability_reports,
-            args.fail_on,
-            completed=report_state.run_record.get("status") == "completed",
-        ):
+        if report_state and findings_fail_build(report_state.vulnerability_reports, args.fail_on):
             sys.exit(2)
 
 

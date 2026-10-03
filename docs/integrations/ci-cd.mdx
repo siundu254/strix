@@ -27,7 +27,7 @@ strix -n --target ./app --scan-mode quick --scope-mode diff --diff-base origin/m
 | 1 | Execution error |
 | 2 | Vulnerabilities found (with `--fail-on`, at least one at or above the threshold) |
 
-To fail only on serious findings, pass `--fail-on` with a minimum severity. Lower findings are still reported but exit `0`, so a passing job does not mean the report is empty. The threshold only applies to scans that completed; a scan that stopped early fails on any finding:
+To fail only on serious findings, pass `--fail-on` with a minimum severity. Lower findings are still reported but exit `0`, so a passing job does not mean the report is empty.:
 
 ```bash
 strix -n --target ./app --scan-mode quick --fail-on high
